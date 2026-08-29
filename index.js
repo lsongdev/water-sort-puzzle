@@ -155,21 +155,58 @@ async function animatePour(from, to) {
   if (!source || !target) return;
 
   const sourceRect = source.getBoundingClientRect();
-  const targetRect = target.getBoundingClientRect();
-  const sourceCenter = sourceRect.left + sourceRect.width / 2;
-  const targetCenter = targetRect.left + targetRect.width / 2;
-  const direction = targetCenter >= sourceCenter ? 'right' : 'left';
-  source.style.setProperty('--pour-x', `${targetCenter - sourceCenter}px`);
-  source.style.setProperty('--pour-y', `${targetRect.top - sourceRect.top - 58}px`);
+  const sourceBottleRect = source.querySelector('.bottle').getBoundingClientRect();
+  const targetBottleRect = target.querySelector('.bottle').getBoundingClientRect();
+  const sourceMouth = {
+    x: sourceBottleRect.left + sourceBottleRect.width / 2,
+    y: sourceBottleRect.top + 4,
+  };
+  const targetMouth = {
+    x: targetBottleRect.left + targetBottleRect.width / 2,
+    y: targetBottleRect.top + 4,
+  };
+  const streamHeight = 56;
+  const direction = targetMouth.x >= sourceMouth.x ? 'right' : 'left';
+  const pourX = targetMouth.x - sourceMouth.x;
+  const pourY = targetMouth.y - streamHeight - sourceMouth.y;
+  const anchor = document.createElement('span');
+  anchor.className = `mouth-anchor mouth-anchor-${direction}`;
+  source.querySelector('.bottle').append(anchor);
+  source.style.setProperty('--mouth-x', `${sourceMouth.x - sourceRect.left}px`);
+  source.style.setProperty('--mouth-y', `${sourceMouth.y - sourceRect.top}px`);
   source.classList.add('pouring', `pouring-${direction}`);
   target.classList.add('receiving');
 
-  await wait(210);
+  const angle = direction === 'right' ? 66 : -66;
+  const restingTransform = 'translateY(-15px) rotate(0deg)';
+  const roughTransform = `translate(${pourX}px, ${pourY}px) rotate(${angle}deg)`;
+  source.style.transitionDuration = '230ms';
+  source.style.transform = roughTransform;
+  await wait(240);
+
+  // The visible pouring point is the lower edge of the rotated rim, not its
+  // center. Measure that edge after rotation and snap it above the target rim.
+  const anchorRect = anchor.getBoundingClientRect();
+  const anchorCenter = {
+    x: anchorRect.left + anchorRect.width / 2,
+    y: anchorRect.top + anchorRect.height / 2,
+  };
+  const correctedTransform = `translate(${pourX + targetMouth.x - anchorCenter.x}px, ${pourY + targetMouth.y - streamHeight - anchorCenter.y}px) rotate(${angle}deg)`;
+  source.style.transitionDuration = '90ms';
+  source.style.transform = correctedTransform;
+  await wait(100);
+
+  const alignedAnchorRect = anchor.getBoundingClientRect();
+  const streamStart = {
+    x: alignedAnchorRect.left + alignedAnchorRect.width / 2,
+    y: alignedAnchorRect.top + alignedAnchorRect.height / 2,
+  };
   const stream = document.createElement('span');
   const topLiquid = source.querySelector('.liquid.top');
   stream.className = 'pour-stream';
-  stream.style.left = `${targetCenter - 4}px`;
-  stream.style.top = `${targetRect.top - 53}px`;
+  stream.style.left = `${streamStart.x - 4}px`;
+  stream.style.top = `${streamStart.y}px`;
+  stream.style.height = `${Math.max(8, targetMouth.y - streamStart.y)}px`;
   stream.style.backgroundColor = topLiquid ? getComputedStyle(topLiquid).backgroundColor : '#76bfc2';
   document.body.append(stream);
 
@@ -177,10 +214,16 @@ async function animatePour(from, to) {
   stream.classList.add('ending');
   await wait(150);
   stream.remove();
+  anchor.remove();
+  source.style.transitionDuration = '230ms';
+  source.style.transform = restingTransform;
+  await wait(240);
+  source.style.removeProperty('transform');
+  source.style.removeProperty('transition-duration');
   source.classList.remove('pouring', `pouring-${direction}`);
   target.classList.remove('receiving');
-  source.style.removeProperty('--pour-x');
-  source.style.removeProperty('--pour-y');
+  source.style.removeProperty('--mouth-x');
+  source.style.removeProperty('--mouth-y');
 }
 
 const wait = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));

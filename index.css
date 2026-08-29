@@ -43,11 +43,12 @@ h1 em { color:var(--green); font-style:normal; }
 .bottle-wrap.selected::after { content:""; position:absolute; left:50%; bottom:-14px; width:22px; height:3px; border-radius:9px; background:#355f48; transform:translateX(-50%); }
 .bottle-wrap.shake { animation:shake .34s ease; }
 .bottle-board.is-pouring .bottle-wrap { pointer-events:none; }
-.bottle-wrap.pouring { z-index:6; transform-origin:50% 35%; }
+.bottle-wrap.pouring { z-index:6; transform-origin:var(--mouth-x) var(--mouth-y); }
 .bottle-wrap.pouring::after { opacity:0; }
-.bottle-wrap.pouring-right { animation:pour-right .69s cubic-bezier(.4,0,.2,1) both; }
-.bottle-wrap.pouring-left { animation:pour-left .69s cubic-bezier(.4,0,.2,1) both; }
-.bottle-wrap.receiving .bottle { animation:receive .69s ease; }
+.bottle-wrap.receiving .bottle { animation:receive .92s ease; }
+.mouth-anchor { position:absolute; z-index:8; top:3px; width:2px; height:2px; opacity:0; pointer-events:none; }
+.mouth-anchor-right { right:1px; }
+.mouth-anchor-left { left:1px; }
 .pour-stream { position:fixed; z-index:5; width:8px; height:53px; border-radius:999px; pointer-events:none; transform-origin:top; animation:stream-in .2s ease-out both; box-shadow:0 0 10px rgba(255,255,255,.18); }
 .pour-stream::after { content:""; position:absolute; left:1px; bottom:-5px; width:6px; height:6px; border-radius:50%; background:inherit; }
 .pour-stream.ending { animation:stream-out .15s ease-in both; transform-origin:bottom; }
@@ -77,8 +78,6 @@ footer i { width:3px; height:3px; border-radius:50%; background:#b5a997; }
 .replay-button { margin-top:14px; border:0; color:var(--muted); background:none; font-size:12px; cursor:pointer; }
 .confetti { position:fixed; inset:0; pointer-events:none; background-image:radial-gradient(circle,#efb84f 0 4px,transparent 5px),radial-gradient(circle,#e76555 0 3px,transparent 4px),radial-gradient(circle,#6aaf8e 0 4px,transparent 5px); background-position:10% 20%,70% 15%,85% 75%; background-size:170px 210px,220px 180px,190px 230px; animation:confetti 1.2s ease-out both; }
 @keyframes shake { 25%{transform:translateX(-5px)} 50%{transform:translateX(5px)} 75%{transform:translateX(-3px)} }
-@keyframes pour-right { 0%,100%{transform:translateY(-15px) rotate(0)} 28%,78%{transform:translate(var(--pour-x),var(--pour-y)) rotate(58deg)} }
-@keyframes pour-left { 0%,100%{transform:translateY(-15px) rotate(0)} 28%,78%{transform:translate(var(--pour-x),var(--pour-y)) rotate(-58deg)} }
 @keyframes receive { 0%,100%{transform:scale(1)} 50%{transform:scale(1.04);filter:brightness(1.08)} }
 @keyframes stream-in { from{opacity:0;transform:scaleY(0)} to{opacity:.9;transform:scaleY(1)} }
 @keyframes stream-out { from{opacity:.9;transform:scaleY(1)} to{opacity:0;transform:scaleY(0)} }
