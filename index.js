@@ -16,6 +16,7 @@ let moves = 0;
 let history = [];
 let soundEnabled = true;
 let audioContext;
+let animating = false;
 
 function seededRandom(seed) {
   let value = seed % 2147483647;
@@ -108,7 +109,8 @@ function canPour(from, to) {
   return !bottles[to].length || bottles[to].at(-1) === bottles[from].at(-1);
 }
 
-function handleBottleClick(index, element) {
+async function handleBottleClick(index, element) {
+  if (animating) return;
   if (selected === null) {
     if (!bottles[index].length) return reject(element, '这个瓶子是空的');
     selected = index;
@@ -124,17 +126,64 @@ function handleBottleClick(index, element) {
   if (!canPour(selected, index)) {
     return reject(element, bottles[index].length === CAPACITY ? '这个瓶子已经满了' : '只能倒在相同颜色上');
   }
+  const sourceIndex = selected;
   history.push({ bottles: cloneState(bottles), moves });
-  const { count } = topGroup(bottles[selected]);
+  const { count } = topGroup(bottles[sourceIndex]);
   const amount = Math.min(count, CAPACITY - bottles[index].length);
-  bottles[index].push(...bottles[selected].splice(-amount));
+  animating = true;
+  board.classList.add('is-pouring');
+  message.textContent = `正在倒入 ${amount} 层颜色…`;
+  playTone(540, .12);
+  try {
+    await animatePour(sourceIndex, index);
+  } finally {
+    animating = false;
+    board.classList.remove('is-pouring');
+  }
+  bottles[index].push(...bottles[sourceIndex].splice(-amount));
   moves++;
   selected = null;
   message.textContent = `倒入了 ${amount} 层颜色`;
-  playTone(540, .08);
   render();
   if (isSolved()) setTimeout(showWin, 380);
 }
+
+async function animatePour(from, to) {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const source = board.children[from];
+  const target = board.children[to];
+  if (!source || !target) return;
+
+  const sourceRect = source.getBoundingClientRect();
+  const targetRect = target.getBoundingClientRect();
+  const sourceCenter = sourceRect.left + sourceRect.width / 2;
+  const targetCenter = targetRect.left + targetRect.width / 2;
+  const direction = targetCenter >= sourceCenter ? 'right' : 'left';
+  source.style.setProperty('--pour-x', `${targetCenter - sourceCenter}px`);
+  source.style.setProperty('--pour-y', `${targetRect.top - sourceRect.top - 58}px`);
+  source.classList.add('pouring', `pouring-${direction}`);
+  target.classList.add('receiving');
+
+  await wait(210);
+  const stream = document.createElement('span');
+  const topLiquid = source.querySelector('.liquid.top');
+  stream.className = 'pour-stream';
+  stream.style.left = `${targetCenter - 4}px`;
+  stream.style.top = `${targetRect.top - 53}px`;
+  stream.style.backgroundColor = topLiquid ? getComputedStyle(topLiquid).backgroundColor : '#76bfc2';
+  document.body.append(stream);
+
+  await wait(330);
+  stream.classList.add('ending');
+  await wait(150);
+  stream.remove();
+  source.classList.remove('pouring', `pouring-${direction}`);
+  target.classList.remove('receiving');
+  source.style.removeProperty('--pour-x');
+  source.style.removeProperty('--pour-y');
+}
+
+const wait = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));
 
 function reject(element, text) {
   message.textContent = text;
@@ -165,6 +214,7 @@ function resetCurrent() {
 }
 
 undoButton.addEventListener('click', () => {
+  if (animating) return;
   const previous = history.pop();
   if (!previous) return;
   bottles = previous.bottles;
@@ -174,10 +224,10 @@ undoButton.addEventListener('click', () => {
   playTone(330, .05);
   render();
 });
-$('#restartButton').addEventListener('click', resetCurrent);
-$('#replayButton').addEventListener('click', resetCurrent);
-$('#newGameButton').addEventListener('click', () => startLevel(level + 1));
-$('#nextLevelButton').addEventListener('click', () => startLevel(level + 1));
+$('#restartButton').addEventListener('click', () => !animating && resetCurrent());
+$('#replayButton').addEventListener('click', () => !animating && resetCurrent());
+$('#newGameButton').addEventListener('click', () => !animating && startLevel(level + 1));
+$('#nextLevelButton').addEventListener('click', () => !animating && startLevel(level + 1));
 $('#soundButton').addEventListener('click', event => {
   soundEnabled = !soundEnabled;
   event.currentTarget.setAttribute('aria-pressed', String(soundEnabled));
