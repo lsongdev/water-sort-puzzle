@@ -130,12 +130,13 @@ async function handleBottleClick(index, element) {
   history.push({ bottles: cloneState(bottles), moves });
   const { count } = topGroup(bottles[sourceIndex]);
   const amount = Math.min(count, CAPACITY - bottles[index].length);
+  const color = bottles[sourceIndex].at(-1);
   animating = true;
   board.classList.add('is-pouring');
   message.textContent = `正在倒入 ${amount} 层颜色…`;
   playTone(540, .12);
   try {
-    await animatePour(sourceIndex, index);
+    await animatePour(sourceIndex, index, amount, color);
   } finally {
     animating = false;
     board.classList.remove('is-pouring');
@@ -148,7 +149,7 @@ async function handleBottleClick(index, element) {
   if (isSolved()) setTimeout(showWin, 380);
 }
 
-async function animatePour(from, to) {
+async function animatePour(from, to, amount, color) {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const source = board.children[from];
   const target = board.children[to];
@@ -167,40 +168,46 @@ async function animatePour(from, to) {
   };
   const streamHeight = 56;
   const direction = targetMouth.x >= sourceMouth.x ? 'right' : 'left';
-  const pourX = targetMouth.x - sourceMouth.x;
-  const pourY = targetMouth.y - streamHeight - sourceMouth.y;
   const anchor = document.createElement('span');
   anchor.className = `mouth-anchor mouth-anchor-${direction}`;
   source.querySelector('.bottle').append(anchor);
-  source.style.setProperty('--mouth-x', `${sourceMouth.x - sourceRect.left}px`);
-  source.style.setProperty('--mouth-y', `${sourceMouth.y - sourceRect.top}px`);
+  const anchorRect = anchor.getBoundingClientRect();
+  const pivot = {
+    x: sourceMouth.x - sourceRect.left,
+    y: sourceMouth.y - sourceRect.top,
+  };
+  const lip = {
+    x: anchorRect.left + anchorRect.width / 2 - sourceRect.left,
+    y: anchorRect.top + anchorRect.height / 2 - sourceRect.top,
+  };
+  source.style.setProperty('--mouth-x', `${pivot.x}px`);
+  source.style.setProperty('--mouth-y', `${pivot.y}px`);
   source.classList.add('pouring', `pouring-${direction}`);
   target.classList.add('receiving');
 
   const angle = direction === 'right' ? 66 : -66;
-  const restingTransform = 'translateY(-15px) rotate(0deg)';
-  const roughTransform = `translate(${pourX}px, ${pourY}px) rotate(${angle}deg)`;
-  source.style.transitionDuration = '230ms';
-  source.style.transform = roughTransform;
-  await wait(240);
-
-  // The visible pouring point is the lower edge of the rotated rim, not its
-  // center. Measure that edge after rotation and snap it above the target rim.
-  const anchorRect = anchor.getBoundingClientRect();
-  const anchorCenter = {
-    x: anchorRect.left + anchorRect.width / 2,
-    y: anchorRect.top + anchorRect.height / 2,
+  const radians = angle * Math.PI / 180;
+  const relativeLip = { x: lip.x - pivot.x, y: lip.y - pivot.y };
+  const rotatedLip = {
+    x: relativeLip.x * Math.cos(radians) - relativeLip.y * Math.sin(radians),
+    y: relativeLip.x * Math.sin(radians) + relativeLip.y * Math.cos(radians),
   };
-  const correctedTransform = `translate(${pourX + targetMouth.x - anchorCenter.x}px, ${pourY + targetMouth.y - streamHeight - anchorCenter.y}px) rotate(${angle}deg)`;
-  source.style.transitionDuration = '90ms';
-  source.style.transform = correctedTransform;
-  await wait(100);
-
-  const alignedAnchorRect = anchor.getBoundingClientRect();
-  const streamStart = {
-    x: alignedAnchorRect.left + alignedAnchorRect.width / 2,
-    y: alignedAnchorRect.top + alignedAnchorRect.height / 2,
+  const start = { x: 0, y: -15 };
+  const base = { x: sourceRect.left, y: sourceRect.top - start.y };
+  const end = {
+    x: targetMouth.x - (base.x + pivot.x + rotatedLip.x),
+    y: targetMouth.y - streamHeight - (base.y + pivot.y + rotatedLip.y),
   };
+  const lift = Math.min(96, 48 + Math.abs(end.x) * .16);
+  const control = {
+    x: (start.x + end.x) / 2,
+    y: Math.min(start.y, end.y) - lift,
+  };
+
+  source.style.transform = transformAt(start, 0);
+  await animateCurve(source, start, control, end, 0, angle, 360);
+
+  const streamStart = { x: targetMouth.x, y: targetMouth.y - streamHeight };
   const stream = document.createElement('span');
   const topLiquid = source.querySelector('.liquid.top');
   stream.className = 'pour-stream';
@@ -210,20 +217,76 @@ async function animatePour(from, to) {
   stream.style.backgroundColor = topLiquid ? getComputedStyle(topLiquid).backgroundColor : '#76bfc2';
   document.body.append(stream);
 
-  await wait(330);
+  await animateLiquidTransfer(source, target, amount, color, 440 + amount * 70);
   stream.classList.add('ending');
-  await wait(150);
+  await wait(130);
   stream.remove();
+  await animateCurve(source, end, control, start, angle, 0, 310);
+
   anchor.remove();
-  source.style.transitionDuration = '230ms';
-  source.style.transform = restingTransform;
-  await wait(240);
   source.style.removeProperty('transform');
-  source.style.removeProperty('transition-duration');
   source.classList.remove('pouring', `pouring-${direction}`);
   target.classList.remove('receiving');
   source.style.removeProperty('--mouth-x');
   source.style.removeProperty('--mouth-y');
+}
+
+function transformAt(point, angle) {
+  return `translate(${point.x}px, ${point.y}px) rotate(${angle}deg)`;
+}
+
+function animateCurve(element, start, control, end, startAngle, endAngle, duration) {
+  return animateFrames(duration, progress => {
+    const eased = progress < .5
+      ? 2 * progress * progress
+      : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+    const inverse = 1 - eased;
+    const point = {
+      x: inverse * inverse * start.x + 2 * inverse * eased * control.x + eased * eased * end.x,
+      y: inverse * inverse * start.y + 2 * inverse * eased * control.y + eased * eased * end.y,
+    };
+    element.style.transform = transformAt(point, startAngle + (endAngle - startAngle) * eased);
+  });
+}
+
+function animateLiquidTransfer(source, target, amount, color, duration) {
+  const sourceLayers = Array.from(source.querySelectorAll('.liquid')).slice(-amount).reverse();
+  const targetBottle = target.querySelector('.bottle');
+  const incomingLayers = Array.from({ length: amount }, () => {
+    const layer = document.createElement('span');
+    layer.className = `liquid transfer-in color-${color}`;
+    layer.style.flexBasis = '0%';
+    targetBottle.append(layer);
+    return layer;
+  });
+
+  return animateFrames(duration, progress => {
+    const volume = (1 - Math.cos(Math.PI * progress)) / 2 * amount;
+    sourceLayers.forEach((layer, index) => {
+      const transferred = Math.min(1, Math.max(0, volume - index));
+      layer.style.flexBasis = `${25 * (1 - transferred)}%`;
+      layer.style.opacity = String(Math.min(1, (1 - transferred) * 4));
+      layer.classList.toggle('top', index === Math.min(amount - 1, Math.floor(volume)) && transferred < 1);
+    });
+    incomingLayers.forEach((layer, index) => {
+      const transferred = Math.min(1, Math.max(0, volume - index));
+      layer.style.flexBasis = `${25 * transferred}%`;
+      layer.classList.toggle('top', index === Math.min(amount - 1, Math.floor(volume)));
+    });
+  });
+}
+
+function animateFrames(duration, draw) {
+  return new Promise(resolve => {
+    const startedAt = performance.now();
+    const frame = now => {
+      const progress = Math.min(1, (now - startedAt) / duration);
+      draw(progress);
+      if (progress < 1) requestAnimationFrame(frame);
+      else resolve();
+    };
+    requestAnimationFrame(frame);
+  });
 }
 
 const wait = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));
