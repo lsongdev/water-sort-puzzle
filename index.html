@@ -1,75 +1,64 @@
-<!DOCTYPE html>
-<html lang="en">
-
+<!doctype html>
+<html lang="zh-CN">
 <head>
-  <title>Lsong’s Pages</title>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="description" content="homepage, blog, music and etc.">
-  <meta name="author" content="Lsong">
-  <meta name="theme-color" content="#ffffff">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="Lsong’s Web">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>水色工坊 · Water Sort</title>
+  <meta name="description" content="一款轻松好玩的水瓶颜色排序小游戏。把相同颜色的水倒进同一只瓶子，完成所有分类。">
+  <meta name="theme-color" content="#f5efe4">
+  <meta property="og:title" content="水色工坊 · Water Sort">
+  <meta property="og:description" content="倒一倒，理清缤纷色彩。">
+  <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:creator" content="@lsongdev">
   <link rel="manifest" href="manifest.json">
-  <link rel="icon" type="image/svg+xml" href="https://lsong.org/icon.svg">
-  <link rel="apple-touch-icon" sizes="128x128" type="image/png" href="https://lsong.org/icon-x128.png">
-  <link rel="apple-touch-icon" sizes="512x512" type="image/png" href="https://lsong.org/icon-x512.png">
   <link rel="stylesheet" href="index.css">
   <script type="module" src="index.js"></script>
 </head>
-
 <body>
-  <header class="navbar">
-    <a href="/" class="navbar-brand">
-      <img src="https://lsong.org/assets/web/icon.png?v=2" alt="logo" class="navbar-brand-mark"
-        referrerpolicy="no-referrer" />
-      <h1 prefix="Lsong’s " class="title">Pages</h1>
-    </a>
-    <nav class="nav nav-bar">
-      <a href="//lsong.org">Home</a>
-      <a href="//lsong.org/posts">Blog</a>
-      <a href="//lsong.org/games">Games</a>
-      <a href="//lsong.org/music">Music</a>
-      <a href="//lsong.org/start">Apps</a>
-    </nav>
-  </header>
-  <main class="content">
-
-    <section id="hello" class="site-hero">
-      <h2 class="site-hero-title">Hello 👋</h2>
-      <p class="site-hero-copy">
-        Hi, I’m Liu Song — a full-stack developer making thoughtful software for the web, mobile devices, and the
-        systems in between.
-      </p>
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
+  <main class="game-shell">
+    <header class="topbar">
+      <a class="brand" href="." aria-label="水色工坊首页">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span>水色工坊<small>WATER SORT</small></span>
+      </a>
+      <button class="icon-button" id="soundButton" type="button" aria-label="关闭音效" aria-pressed="true">
+        <span class="sound-on">♪</span><span class="sound-off">×</span>
+      </button>
+    </header>
+    <section class="game-heading">
+      <div>
+        <p class="eyebrow">轻松动脑 · 随时重来</p>
+        <h1>倒一倒，<em>理清色彩。</em></h1>
+      </div>
+      <p class="instructions">点选一个瓶子，再点另一个瓶子。只有相同颜色或空瓶才可以接水。</p>
     </section>
-
-    <section id="app"></section>
-
-    <section id="subscribe" class="subscribe">
-      <h2>Subscribe</h2>
-      <p>Join our occasional newsletter for product launches, availability, job openings, and news:</p>
-      <form action="https://formspree.io/hi@lsong.org" method="post" class="input-group width-full">
-        <input class="input" type="email" id="email" name="email" required placeholder="email address">
-        <button class="button" type="submit">Submit</button>
-      </form>
+    <section class="game-card" aria-label="水瓶排序游戏">
+      <div class="statusbar">
+        <div class="level-pill"><span>关卡</span><strong id="levelNumber">01</strong></div>
+        <div class="move-count"><span>已用步数</span><strong id="moveCount">0</strong></div>
+        <button class="text-button" id="newGameButton" type="button">换一局 <span>↗</span></button>
+      </div>
+      <div id="message" class="message" aria-live="polite">选择一个瓶子开始</div>
+      <div id="bottleBoard" class="bottle-board" role="group" aria-label="游戏水瓶"></div>
+      <div class="controls">
+        <button id="undoButton" class="control-button" type="button" disabled><span aria-hidden="true">↶</span> 撤销</button>
+        <button id="restartButton" class="control-button primary" type="button"><span aria-hidden="true">↻</span> 重新开始</button>
+      </div>
     </section>
+    <footer><span>慢一点也没关系</span><i></i><span>每一步都算数</span></footer>
   </main>
-  <footer class="site-footer footer">
-    <a class="navbar-brand" href="/">
-      <img class="navbar-brand-mark" src="https://lsong.org/assets/web/icon.png" alt="" aria-hidden="true">
-      <span>lsong.org</span>
-    </a>
-    <p>Independent software, made with care.</p>
-    <nav aria-label="Footer navigation">
-      <a href="mailto:hi@lsong.org">Email</a>
-      <a href="https://lsong.org/terms.html">Terms</a>
-      <a href="https://lsong.org/privacy.html">Privacy</a>
-    </nav>
-  </footer>
+  <div id="winDialog" class="win-dialog" role="dialog" aria-modal="true" aria-labelledby="winTitle" hidden>
+    <div class="confetti" aria-hidden="true"></div>
+    <div class="win-card">
+      <span class="win-drop" aria-hidden="true">✓</span>
+      <p class="eyebrow">SORTED BEAUTIFULLY</p>
+      <h2 id="winTitle">色彩归位！</h2>
+      <p>你用了 <strong id="finalMoves">0</strong> 步完成这一关。</p>
+      <button id="nextLevelButton" class="next-button" type="button">下一关 <span>→</span></button>
+      <button id="replayButton" class="replay-button" type="button">再玩一次</button>
+    </div>
+  </div>
 </body>
-
 </html>
