@@ -1,5 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700;900&display=swap');
-:root { --ink:#233228; --muted:#718076; --paper:#f5efe4; --card:rgba(255,252,245,.82); --green:#35644a; --line:rgba(44,70,53,.14); --shadow:0 24px 70px rgba(61,58,42,.12); }
+:root { --ink:#233228; --muted:#718076; --paper:#f5efe4; --card:rgba(255,252,245,.82); --green:#35644a; --line:rgba(44,70,53,.14); --shadow:0 24px 70px rgba(61,58,42,.12); --water-0:#e76555; --water-1:#efb84f; --water-2:#599bc6; --water-3:#6aaf8e; --water-4:#8b73b8; --water-5:#e583a4; --water-6:#db8b48; --water-7:#76bfc2; }
 * { box-sizing:border-box; }
 html,body { min-height:100%; }
 body { margin:0; color:var(--ink); background:var(--paper); font-family:"Noto Sans SC",system-ui,sans-serif; overflow-x:hidden; }
@@ -58,8 +58,8 @@ h1 em { color:var(--green); font-style:normal; }
 .bottle-wrap.pouring .liquid,.liquid.transfer-in { min-height:0; transition:none; }
 .liquid.top { border-radius:42% 42% 0 0/8px 8px 0 0; }
 .liquid::after { content:""; position:absolute; inset:0 auto 0 5px; width:4px; background:rgba(255,255,255,.16); }
-.color-0 { background:#e76555; } .color-1 { background:#efb84f; } .color-2 { background:#599bc6; } .color-3 { background:#6aaf8e; }
-.color-4 { background:#8b73b8; } .color-5 { background:#e583a4; } .color-6 { background:#db8b48; } .color-7 { background:#76bfc2; }
+.color-0 { background:var(--water-0); } .color-1 { background:var(--water-1); } .color-2 { background:var(--water-2); } .color-3 { background:var(--water-3); }
+.color-4 { background:var(--water-4); } .color-5 { background:var(--water-5); } .color-6 { background:var(--water-6); } .color-7 { background:var(--water-7); }
 .controls { display:flex; justify-content:center; gap:10px; padding-top:13px; border-top:1px solid var(--line); }
 .control-button { min-width:105px; padding:10px 17px; border:1px solid var(--line); border-radius:999px; color:var(--ink); background:rgba(255,255,255,.55); font-size:13px; font-weight:700; cursor:pointer; }
 .control-button.primary { color:white; border-color:var(--green); background:var(--green); }
@@ -113,6 +113,14 @@ footer i { width:3px; height:3px; border-radius:50%; background:#b5a997; }
     --green:#82c29e;
     --line:rgba(225,242,231,.14);
     --shadow:0 28px 80px rgba(0,0,0,.35);
+    --water-0:#ff5f57;
+    --water-1:#ffd166;
+    --water-2:#4598ff;
+    --water-3:#48d597;
+    --water-4:#a985ff;
+    --water-5:#ff70b7;
+    --water-6:#ff9838;
+    --water-7:#27d5d8;
   }
   .ambient { opacity:.15; filter:blur(12px); }
   .ambient-one { background:#d47942; }
@@ -129,6 +137,7 @@ footer i { width:3px; height:3px; border-radius:50%; background:#b5a997; }
     box-shadow:inset 5px 0 0 rgba(255,255,255,.08),0 9px 16px rgba(0,0,0,.2);
   }
   .bottle::before { border-color:rgba(222,238,227,.55); background:rgba(255,255,255,.04); }
+  .liquid { box-shadow:inset 0 0 0 1px rgba(255,255,255,.11); }
   .control-button { background:rgba(255,255,255,.06); }
   .control-button.primary,.next-button { color:#102118; background:#82c29e; border-color:#82c29e; }
   .win-dialog { background:rgba(4,9,6,.62); }
