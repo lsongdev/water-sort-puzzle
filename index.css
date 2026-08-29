@@ -89,4 +89,36 @@ footer i { width:3px; height:3px; border-radius:50%; background:#b5a997; }
   .bottle::before { width:48px; }
   .text-button { font-size:12px; }
 }
+@media (prefers-color-scheme:dark) {
+  :root {
+    color-scheme:dark;
+    --ink:#edf4ee;
+    --muted:#9eada3;
+    --paper:#111814;
+    --card:rgba(25,36,30,.88);
+    --green:#82c29e;
+    --line:rgba(225,242,231,.14);
+    --shadow:0 28px 80px rgba(0,0,0,.35);
+  }
+  .ambient { opacity:.15; filter:blur(12px); }
+  .ambient-one { background:#d47942; }
+  .ambient-two { background:#4c9877; }
+  .brand-mark { background:#294f3a; }
+  .icon-button { background:rgba(255,255,255,.05); }
+  .eyebrow { color:#c0a98c; }
+  .game-card { border-color:rgba(255,255,255,.08); }
+  .message,footer { color:#9d978d; }
+  .bottle-wrap.selected::after { background:#91d2ab; }
+  .bottle {
+    border-color:rgba(222,238,227,.55);
+    background:rgba(255,255,255,.03);
+    box-shadow:inset 5px 0 0 rgba(255,255,255,.08),0 9px 16px rgba(0,0,0,.2);
+  }
+  .bottle::before { border-color:rgba(222,238,227,.55); background:rgba(255,255,255,.04); }
+  .control-button { background:rgba(255,255,255,.06); }
+  .control-button.primary,.next-button { color:#102118; background:#82c29e; border-color:#82c29e; }
+  .win-dialog { background:rgba(4,9,6,.62); }
+  .win-card { background:#1a251e; box-shadow:0 30px 80px rgba(0,0,0,.55); }
+  .win-drop { color:#102118; background:#82c29e; }
+}
 @media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation-duration:.01ms!important; transition-duration:.01ms!important; } }
