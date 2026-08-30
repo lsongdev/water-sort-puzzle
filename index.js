@@ -1,4 +1,5 @@
 const CAPACITY = 4;
+const LAYER_PERCENT = 22;
 const COLOR_NAMES = ['珊瑚红', '蜂蜜黄', '湖水蓝', '薄荷绿', '鸢尾紫', '莓果粉', '琥珀橙', '冰川青'];
 const $ = selector => document.querySelector(selector);
 const board = $('#bottleBoard');
@@ -264,13 +265,13 @@ function animateLiquidTransfer(source, target, amount, color, duration) {
     const volume = (1 - Math.cos(Math.PI * progress)) / 2 * amount;
     sourceLayers.forEach((layer, index) => {
       const transferred = Math.min(1, Math.max(0, volume - index));
-      layer.style.flexBasis = `${25 * (1 - transferred)}%`;
+      layer.style.flexBasis = `${LAYER_PERCENT * (1 - transferred)}%`;
       layer.style.opacity = String(Math.min(1, (1 - transferred) * 4));
       layer.classList.toggle('top', index === Math.min(amount - 1, Math.floor(volume)) && transferred < 1);
     });
     incomingLayers.forEach((layer, index) => {
       const transferred = Math.min(1, Math.max(0, volume - index));
-      layer.style.flexBasis = `${25 * transferred}%`;
+      layer.style.flexBasis = `${LAYER_PERCENT * transferred}%`;
       layer.classList.toggle('top', index === Math.min(amount - 1, Math.floor(volume)));
     });
   });
