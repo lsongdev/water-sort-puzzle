@@ -52,7 +52,7 @@ h1 em { color:var(--green); font-style:normal; }
 .pour-stream { position:fixed; z-index:5; width:8px; height:53px; border-radius:999px; pointer-events:none; transform-origin:top; animation:stream-in .2s ease-out both; box-shadow:0 0 10px rgba(255,255,255,.18); }
 .pour-stream::after { content:""; position:absolute; left:1px; bottom:-5px; width:6px; height:6px; border-radius:50%; background:inherit; }
 .pour-stream.ending { animation:stream-out .15s ease-in both; transform-origin:bottom; }
-.bottle { position:relative; display:flex; flex-direction:column-reverse; width:56px; height:166px; margin:auto; border:3px solid rgba(42,64,51,.6); border-radius:0 0 20px 20px; background:rgba(255,255,255,.18); box-shadow:inset 5px 0 0 rgba(255,255,255,.32),0 8px 13px rgba(60,62,52,.07); overflow:hidden; }
+.bottle { position:relative; display:flex; flex-direction:column-reverse; width:56px; height:166px; margin:auto; border:3px solid rgba(42,64,51,.6); border-top:0; border-radius:0 0 20px 20px; background:rgba(255,255,255,.18); box-shadow:inset 5px 0 0 rgba(255,255,255,.32),0 8px 13px rgba(60,62,52,.07); overflow:hidden; }
 .liquid { position:relative; flex:0 0 22%; width:100%; border-top:1px solid rgba(255,255,255,.35); transition:background .25s; }
 .bottle-wrap.pouring .liquid,.liquid.transfer-in { min-height:0; transition:none; }
 .liquid::after { content:""; position:absolute; inset:0 auto 0 5px; width:4px; background:rgba(255,255,255,.16); }
