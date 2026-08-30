@@ -53,6 +53,10 @@ h1 em { color:var(--green); font-style:normal; }
 .pour-stream::after { content:""; position:absolute; left:1px; bottom:-5px; width:6px; height:6px; border-radius:50%; background:inherit; }
 .pour-stream.ending { animation:stream-out .15s ease-in both; transform-origin:bottom; }
 .bottle { position:relative; display:flex; flex-direction:column-reverse; width:56px; height:166px; margin:auto; border:3px solid rgba(42,64,51,.6); border-top:0; border-radius:0 0 20px 20px; background:rgba(255,255,255,.18); box-shadow:inset 5px 0 0 rgba(255,255,255,.32),0 8px 13px rgba(60,62,52,.07); overflow:hidden; }
+.bottle-lips { position:absolute; z-index:5; top:13px; left:50%; width:56px; height:3px; pointer-events:none; transform:translateX(-50%); }
+.bottle-lips::before,.bottle-lips::after { content:""; position:absolute; top:0; width:9px; height:3px; border-radius:999px; background:rgba(42,64,51,.6); }
+.bottle-lips::before { left:-3px; }
+.bottle-lips::after { right:-3px; }
 .liquid { position:relative; flex:0 0 22%; width:100%; border-top:1px solid rgba(255,255,255,.35); transition:background .25s; }
 .bottle-wrap.pouring .liquid,.liquid.transfer-in { min-height:0; transition:none; }
 .liquid::after { content:""; position:absolute; inset:0 auto 0 5px; width:4px; background:rgba(255,255,255,.16); }
@@ -91,12 +95,14 @@ footer i { width:3px; height:3px; border-radius:50%; background:#b5a997; }
   .bottle-board { gap:29px 20px; min-height:330px; padding:10px 2px 22px; }
   .bottle-wrap { width:52px; }
   .bottle { width:48px; height:144px; }
+  .bottle-lips { width:48px; }
   footer { padding-bottom:8px; }
 }
 @media (max-width:390px) {
   .bottle-board { gap:26px 14px; }
   .bottle-wrap { width:48px; }
   .bottle { width:44px; height:136px; }
+  .bottle-lips { width:44px; }
   .text-button { font-size:12px; }
 }
 @media (prefers-color-scheme:dark) {
@@ -124,6 +130,7 @@ footer i { width:3px; height:3px; border-radius:50%; background:#b5a997; }
     background:rgba(255,255,255,.03);
     box-shadow:inset 5px 0 0 rgba(255,255,255,.08),0 9px 16px rgba(0,0,0,.2);
   }
+  .bottle-lips::before,.bottle-lips::after { background:rgba(222,238,227,.55); }
   .liquid { box-shadow:inset 0 0 0 1px rgba(255,255,255,.11); }
   .control-button { background:rgba(255,255,255,.06); }
   .control-button.primary,.next-button { color:#102118; background:#82c29e; border-color:#82c29e; }
