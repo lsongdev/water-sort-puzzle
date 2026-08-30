@@ -91,9 +91,7 @@ function render() {
       liquid.className = `liquid color-${color}${liquidIndex === contents.length - 1 ? ' top' : ''}`;
       glass.append(liquid);
     });
-    const lips = document.createElement('span');
-    lips.className = 'bottle-lips';
-    button.append(glass, lips);
+    button.append(glass);
     button.addEventListener('click', () => handleBottleClick(index, button));
     board.append(button);
   });
